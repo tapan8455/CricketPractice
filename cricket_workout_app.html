@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cricket Fit">
+<title>Cricket Fit</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f11;
+  --surface: #18181c;
+  --surface2: #222228;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0efe8;
+  --muted: #7a7a82;
+  --dim: #44444c;
+  --green: #22c97a;
+  --green-dim: rgba(34,201,122,0.12);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.12);
+  --blue: #4a9eff;
+  --blue-dim: rgba(74,158,255,0.12);
+  --red: #ff5f5f;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow: hidden; }
+
+/* ── SCREENS ── */
+.screen { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; display: none; flex-direction: column; }
+.screen.active { display: flex; }
+.screen::-webkit-scrollbar { display: none; }
+
+/* ── HOME ── */
+#home { background: var(--bg); padding: env(safe-area-inset-top, 20px) 0 100px; }
+.home-header { padding: 28px 20px 20px; }
+.home-greeting { font-size: 13px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+.home-title { font-size: 28px; font-weight: 600; line-height: 1.2; }
+.home-title span { color: var(--green); }
+.plan-section { padding: 0 20px; margin-bottom: 28px; }
+.plan-section-label { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 12px; }
+.plan-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; cursor: pointer; transition: border-color .2s; }
+.plan-card:active { opacity: .85; }
+.plan-card-top { padding: 16px; display: flex; align-items: center; gap: 12px; }
+.plan-card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.icon-green { background: var(--green-dim); }
+.icon-amber { background: var(--amber-dim); }
+.icon-blue  { background: var(--blue-dim); }
+.plan-card-info { flex: 1; }
+.plan-card-name { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+.plan-card-meta { font-size: 12px; color: var(--muted); }
+.plan-card-chevron { color: var(--dim); font-size: 18px; }
+.day-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 16px 16px; }
+.day-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; cursor: pointer; transition: all .15s; }
+.day-btn:active { opacity: .8; }
+.day-btn-label { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+.day-btn-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.day-btn.done { border-color: var(--green); background: var(--green-dim); }
+.day-btn.done .day-btn-name { color: var(--green); }
+.add-home-banner { margin: 0 20px 20px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+.add-home-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.add-home-text { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.add-home-text strong { color: var(--text); font-weight: 500; display: block; margin-bottom: 2px; }
+
+/* ── SESSION ── */
+#session { background: var(--bg); padding-bottom: 100px; }
+.session-header { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--border); padding: env(safe-area-inset-top, 16px) 20px 14px; display: flex; align-items: center; gap: 12px; }
+.back-btn { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; flex-shrink: 0; }
+.session-title-block { flex: 1; }
+.session-plan-tag { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .07em; }
+.session-title { font-size: 17px; font-weight: 600; }
+.session-progress-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-family: 'DM Mono', monospace; color: var(--green); white-space: nowrap; }
+.phase-block { margin: 16px 20px 0; }
+.phase-label { font-size: 10px; font-weight: 500; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.phase-dot { width: 7px; height: 7px; border-radius: 50%; }
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; transition: border-color .2s; }
+.ex-card.expanded { border-color: var(--border2); }
+.ex-card-top { padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+.ex-card-top:active { opacity: .85; }
+.ex-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--dim); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all .2s; }
+.ex-check.done { background: var(--green); border-color: var(--green); }
+.ex-check.done::after { content: '✓'; font-size: 13px; color: #000; font-weight: 600; }
+.ex-main { flex: 1; }
+.ex-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.ex-desc { font-size: 12px; color: var(--muted); }
+.ex-expand-icon { color: var(--dim); font-size: 16px; transition: transform .2s; flex-shrink: 0; margin-top: 3px; }
+.ex-card.expanded .ex-expand-icon { transform: rotate(180deg); }
+.ex-body { display: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+.ex-card.expanded .ex-body { display: block; }
+.ex-instructions { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+.ex-instructions strong { color: var(--text); font-weight: 500; }
+.ex-cues { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.ex-cue { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.ex-cue-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 6px; }
+.yt-btn { display: flex; align-items: center; gap: 8px; background: rgba(255,0,0,0.1); border: 1px solid rgba(255,0,0,0.2); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #ff4444; font-weight: 500; text-decoration: none; margin-bottom: 14px; cursor: pointer; }
+.yt-icon { font-size: 16px; }
+.sets-section { }
+.sets-label { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+.sets-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.set-dot { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--dim); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; color: var(--dim); cursor: pointer; transition: all .2s; font-family: 'DM Mono', monospace; }
+.set-dot:active { transform: scale(.92); }
+.set-dot.done { background: var(--green); border-color: var(--green); color: #000; }
+.set-dot.done::after { content: '✓'; font-size: 14px; font-weight: 700; }
+.set-dot.done span { display: none; }
+
+/* ── TIMER ── */
+#timer-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+#timer-overlay.show { display: flex; }
+.timer-label { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .1em; }
+.timer-ring { position: relative; width: 180px; height: 180px; }
+.timer-ring svg { transform: rotate(-90deg); }
+.timer-ring circle { fill: none; stroke-width: 6; }
+.timer-ring .track { stroke: var(--surface2); }
+.timer-ring .progress { stroke: var(--green); stroke-linecap: round; transition: stroke-dashoffset .9s linear; }
+.timer-count { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 52px; font-weight: 300; font-family: 'DM Mono', monospace; color: var(--text); }
+.timer-skip { background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: 12px 32px; font-size: 15px; font-weight: 500; color: var(--text); cursor: pointer; }
+.timer-skip:active { opacity: .8; }
+
+/* ── NAV ── */
+#nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; background: rgba(15,15,17,0.9); backdrop-filter: blur(16px); border-top: 1px solid var(--border); padding: 10px 0 env(safe-area-inset-bottom, 10px); display: flex; }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 0; opacity: .5; transition: opacity .15s; }
+.nav-btn.active { opacity: 1; }
+.nav-icon { font-size: 22px; }
+.nav-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--muted); letter-spacing: .05em; }
+.nav-btn.active .nav-label { color: var(--green); }
+
+/* ── PROGRESS SCREEN ── */
+#progress { background: var(--bg); padding: env(safe-area-inset-top, 20px) 0 100px; }
+.progress-header { padding: 28px 20px 20px; }
+.progress-title { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+.progress-sub { font-size: 13px; color: var(--muted); }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 20px 24px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.stat-val { font-size: 30px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--green); }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.week-track { margin: 0 20px 24px; }
+.week-track-label { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 12px; }
+.week-days { display: flex; gap: 8px; }
+.week-day { flex: 1; aspect-ratio: 1; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.week-day.done { background: var(--green-dim); border-color: var(--green); }
+.week-day-name { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.week-day.done .week-day-name { color: var(--green); }
+.week-day-check { font-size: 16px; }
+.reset-btn { margin: 0 20px; background: transparent; border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 12px; font-size: 13px; color: var(--muted); cursor: pointer; width: calc(100% - 40px); font-family: 'DM Sans', sans-serif; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <div class="home-header">
+    <div class="home-greeting">🏏 Cricket Fit</div>
+    <div class="home-title">Ready to <span>bat stronger?</span></div>
+  </div>
+
+  <div class="add-home-banner">
+    <div class="add-home-icon">📲</div>
+    <div class="add-home-text">
+      <strong>Add to Home Screen</strong>
+      Tap the Share button in Safari → "Add to Home Screen" to use this like a native app.
+    </div>
+  </div>
+
+  <div class="plan-section">
+    <div class="plan-section-label">Beginner Plan — Week 1</div>
+    <div class="plan-card" onclick="openSession('w1d1')">
+      <div class="plan-card-top">
+        <div class="plan-card-icon icon-green">🦵</div>
+        <div class="plan-card-info">
+          <div class="plan-card-name">Day 1 · Lower Body Strength</div>
+          <div class="plan-card-meta">Monday · ~55 min · 2 sets</div>
+        </div>
+        <div class="plan-card-chevron">›</div>
+      </div>
+    </div>
+    <div class="plan-card" onclick="openSession('w1d2')">
+      <div class="plan-card-top">
+        <div class="plan-card-icon icon-blue">🔄</div>
+        <div class="plan-card-info">
+          <div class="plan-card-name">Day 2 · Upper Body & Rotation</div>
+          <div class="plan-card-meta">Thursday · ~55 min · 2 sets</div>
+        </div>
+        <div class="plan-card-chevron">›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="plan-section">
+    <div class="plan-section-label">Full Plan — 4 Days</div>
+    <div class="plan-card" onclick="openSession('fd1')">
+      <div class="plan-card-top">
+        <div class="plan-card-icon icon-green">🏋️</div>
+        <div class="plan-card-info">
+          <div class="plan-card-name">Day 1 · Lower Body Power</div>
+          <div class="plan-card-meta">Monday · ~65 min · 4 sets</div>
+        </div>
+        <div class="plan-card-chevron">›</div>
+      </div>
+    </div>
+    <div class="plan-card" onclick="openSession('fd2')">
+      <div class="plan-card-top">
+        <div class="plan-card-icon icon-blue">🚣</div>
+        <div class="plan-card-info">
+          <div class="plan-card-name">Day 2 · Gym Endurance Circuit</div>
+          <div class="plan-card-meta">Tuesday · ~65 min · 4 sets</div>
+        </div>
+        <div class="plan-card-chevron">›</div>
+      </div>
+    </div>
+    <div class="plan-card" onclick="openSession('fd3')">
+      <div class="plan-card-top">
+        <div class="plan-card-icon icon-amber">🔄</div>
+        <div class="plan-card-info">
+          <div class="plan-card-name">Day 3 · Rotational & Upper Body</div>
+          <div class="plan-card-meta">Thursday · ~65 min · 4 sets</div>
+        </div>
+        <div class="plan-card-chevron">›</div>
+      </div>
+    </div>
+    <div class="plan-card" onclick="openSession('fd4')">
+      <div class="plan-card-top">
+        <div class="plan-card-icon icon-blue">⚡</div>
+        <div class="plan-card-info">
+          <div class="plan-card-name">Day 4 · Power & Full Body</div>
+          <div class="plan-card-meta">Saturday · ~65 min · 4 sets</div>
+        </div>
+        <div class="plan-card-chevron">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SESSION -->
+<div class="screen" id="session">
+  <div class="session-header">
+    <div class="back-btn" onclick="goHome()">‹</div>
+    <div class="session-title-block">
+      <div class="session-plan-tag" id="s-tag"></div>
+      <div class="session-title" id="s-title"></div>
+    </div>
+    <div class="session-progress-pill" id="s-progress">0/0</div>
+  </div>
+  <div id="session-body"></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="screen" id="progress">
+  <div class="progress-header">
+    <div class="progress-title">Your Progress</div>
+    <div class="progress-sub">Sessions completed this week</div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="stat-sessions">0</div><div class="stat-label">Sessions done</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-sets">0</div><div class="stat-label">Total sets completed</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-streak">0</div><div class="stat-label">Day streak</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-exercises">0</div><div class="stat-label">Exercises done</div></div>
+  </div>
+  <div class="week-track">
+    <div class="week-track-label">This week</div>
+    <div class="week-days" id="week-days"></div>
+  </div>
+  <button class="reset-btn" onclick="resetProgress()">Reset all progress</button>
+</div>
+
+<!-- TIMER OVERLAY -->
+<div id="timer-overlay">
+  <div class="timer-label">Rest timer</div>
+  <div class="timer-ring">
+    <svg width="180" height="180" viewBox="0 0 180 180">
+      <circle class="track" cx="90" cy="90" r="82"/>
+      <circle class="progress" id="timer-arc" cx="90" cy="90" r="82" stroke-dasharray="515" stroke-dashoffset="0"/>
+    </svg>
+    <div class="timer-count" id="timer-count">90</div>
+  </div>
+  <button class="timer-skip" onclick="skipTimer()">Skip rest</button>
+</div>
+
+<!-- NAV -->
+<div id="nav">
+  <div class="nav-btn active" onclick="showScreen('home', this)" id="nav-home">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Home</div>
+  </div>
+  <div class="nav-btn" onclick="showScreen('progress', this)" id="nav-progress">
+    <div class="nav-icon">📊</div>
+    <div class="nav-label">Progress</div>
+  </div>
+</div>
+
+<script>
+const SESSIONS = {
+  w1d1: {
+    tag: 'Week 1 Beginner',
+    title: 'Day 1 · Lower Body',
+    restSecs: 90,
+    phases: [
+      { name: 'Warm-up', color: '#22c97a', exercises: [
+        { name: 'Treadmill jog or bike', sets: 1, setLabel: '5 min', instructions: 'Jump on the treadmill or stationary bike. Keep the pace <strong>easy</strong> — you should be able to hold a conversation. The goal is to raise your heart rate and warm your joints, not tire you out.', cues: ['Keep pace conversational', 'Light, easy movement only', 'Focus on breathing naturally'], yt: 'https://www.youtube.com/results?search_query=treadmill+warm+up+beginners' },
+        { name: 'Leg swings', sets: 1, setLabel: '10 each dir', instructions: 'Stand next to a wall for balance. Swing one leg <strong>forward and back</strong> 10 times, then sideways 10 times. This opens your hip flexors and hamstrings.', cues: ['Keep the swing controlled, not floppy', 'Stand tall, don\'t lean', 'Gradually increase range each rep'], yt: 'https://www.youtube.com/results?search_query=leg+swings+warm+up+how+to' },
+        { name: 'Bodyweight squat', sets: 2, setLabel: '2 × 10', instructions: 'Feet shoulder-width apart, toes slightly out. Lower yourself slowly until thighs are at least parallel to the floor. <strong>Push through your heels</strong> to stand back up.', cues: ['Chest up, don\'t round forward', 'Knees track over toes', 'Go as deep as comfortable'], yt: 'https://www.youtube.com/results?search_query=bodyweight+squat+form+beginners' },
+        { name: 'Glute bridge', sets: 1, setLabel: '10 reps', instructions: 'Lie on your back, knees bent, feet flat on the floor. <strong>Drive your hips up</strong> until your body forms a straight line from knees to shoulders. Squeeze your glutes at the top.', cues: ['Squeeze glutes hard at the top', 'Don\'t let your lower back arch excessively', 'Hold 1 second at the top'], yt: 'https://www.youtube.com/results?search_query=glute+bridge+how+to+beginners' },
+      ]},
+      { name: 'Main workout', color: '#4a9eff', exercises: [
+        { name: 'Barbell back squat', sets: 2, setLabel: '2 × 8', instructions: '<strong>Start with an empty bar (20 kg) or just your bodyweight.</strong> Bar rests on your upper traps. Feet shoulder-width, toes out slightly. Brace your core, take a breath, squat until thighs are parallel, drive back up.', cues: ['Chest up and proud', 'Knees out — don\'t let them cave', 'Drive through heels on the way up', 'Take a big breath before descending'], yt: 'https://www.youtube.com/results?search_query=barbell+back+squat+form+beginners' },
+        { name: 'Romanian deadlift', sets: 2, setLabel: '2 × 10', instructions: 'Hold light dumbbells in front of your thighs. <strong>Hinge at the hips</strong>, pushing them back, keeping the weights close to your legs. Lower until you feel a stretch in your hamstrings, then drive hips forward to return.', cues: ['Soft bend in the knees — not a squat', 'Feel the stretch in the back of your legs', 'Keep the dumbbells close to your shins', 'Back stays flat — no rounding'], yt: 'https://www.youtube.com/results?search_query=romanian+deadlift+dumbbell+form+beginners' },
+        { name: 'Dumbbell walking lunge', sets: 2, setLabel: '2 × 8 each', instructions: 'Start without dumbbells or with very light ones. Step forward and lower your back knee toward the floor. <strong>Front knee stays over your ankle</strong>, not past your toes. Push off your front foot to step through.', cues: ['Knee directly over ankle, not caving in', 'Torso stays upright', 'Lower slow — don\'t crash down', 'Push through your heel to step forward'], yt: 'https://www.youtube.com/results?search_query=dumbbell+walking+lunge+form+beginners' },
+        { name: 'Box jump (low box)', sets: 2, setLabel: '2 × 4', instructions: 'Use the <strong>lowest box available</strong>. Stand about 30 cm in front of it. Swing arms back, dip slightly, then explode up onto the box. <strong>Land softly</strong> with bent knees. Step — don\'t jump — back down.', cues: ['Land like a cat — quiet and soft', 'Arms swing up as you jump', 'Fully extend hips at the top', 'Step down carefully, don\'t jump off'], yt: 'https://www.youtube.com/results?search_query=box+jump+beginner+technique+how+to' },
+      ]},
+      { name: 'Cool-down', color: '#f5a623', exercises: [
+        { name: 'Quad + hamstring stretch', sets: 1, setLabel: '30s each side', instructions: '<strong>Quad:</strong> Stand on one leg, pull your heel to your glute. Hold a wall for balance. <strong>Hamstring:</strong> Extend one leg on a bench, hinge forward at the hip keeping your back flat.', cues: ['Hold each stretch a full 30 seconds', 'No bouncing — hold steady', 'Breathe deeply throughout'], yt: 'https://www.youtube.com/results?search_query=quad+hamstring+stretch+after+leg+day' },
+        { name: 'Hip flexor stretch', sets: 1, setLabel: '30s each side', instructions: 'Kneel on one knee (put a pad under it). The other foot is flat on the floor in front. <strong>Shift your weight forward</strong> gently until you feel a stretch at the front of the back leg\'s hip.', cues: ['Keep your torso upright', 'Don\'t let your lower back arch', 'You should feel it at the front of the hip'], yt: 'https://www.youtube.com/results?search_query=kneeling+hip+flexor+stretch+how+to' },
+        { name: 'Calf stretch', sets: 1, setLabel: '30s each', instructions: 'Stand facing a wall with one foot back. <strong>Press your heel firmly into the floor</strong> and push your hips toward the wall. You should feel a stretch through the calf of the back leg.', cues: ['Heel stays flat on the floor', 'Back leg stays straight for gastrocnemius', 'Slight knee bend for deeper soleus stretch'], yt: 'https://www.youtube.com/results?search_query=calf+stretch+against+wall+how+to' },
+      ]}
+    ]
+  },
+  w1d2: {
+    tag: 'Week 1 Beginner',
+    title: 'Day 2 · Upper Body & Rotation',
+    restSecs: 90,
+    phases: [
+      { name: 'Warm-up', color: '#22c97a', exercises: [
+        { name: 'Rowing machine', sets: 1, setLabel: '5 min easy', instructions: 'Sit on the rower, feet strapped in. Pull the handle to your lower chest, leaning back slightly. Push with your legs first, then pull with your arms. <strong>Keep it light and rhythmic</strong> — just warming up.', cues: ['Legs push first, then lean back, then arms pull', 'Keep a smooth, consistent rhythm', 'Aim for about 20 strokes per minute'], yt: 'https://www.youtube.com/results?search_query=rowing+machine+technique+beginners' },
+        { name: 'Arm circles + shoulder rolls', sets: 1, setLabel: '10 each', instructions: 'Stand tall. Make big slow circles with both arms — <strong>forwards 10 times, then backwards 10 times</strong>. Then roll your shoulders up, back, and down in large circles.', cues: ['Make the circles as large as possible', 'Keep your neck relaxed', 'Feel your shoulder joint loosening up'], yt: 'https://www.youtube.com/results?search_query=arm+circles+shoulder+warm+up' },
+        { name: 'Thoracic rotation', sets: 1, setLabel: '10 each side', instructions: 'Kneel on all fours. Place one hand behind your head. <strong>Rotate your upper back</strong>, bringing that elbow up toward the ceiling, then down toward your other arm. Your lower back stays still — only the mid-back rotates.', cues: ['Only the upper back should move', 'Follow your elbow with your eyes', 'Breathe out as you rotate open'], yt: 'https://www.youtube.com/results?search_query=thoracic+rotation+warm+up+kneeling+how+to' },
+      ]},
+      { name: 'Main workout', color: '#4a9eff', exercises: [
+        { name: 'Cable wood chop', sets: 2, setLabel: '2 × 10 each', instructions: 'Set the cable to the highest position. Stand sideways to the machine. <strong>Rotate your torso</strong> and pull the cable diagonally from high to low, like chopping wood. Hips stay still — all rotation comes from your core.', cues: ['Hips face forward — don\'t rotate them', 'Arms stay relatively straight', 'Control the cable on the way back up', 'Light weight only this week'], yt: 'https://www.youtube.com/results?search_query=cable+wood+chop+high+to+low+how+to' },
+        { name: 'Med ball rotational throw', sets: 2, setLabel: '2 × 6 each', instructions: 'Stand sideways to a solid wall, 1–2 metres away. Hold the lightest medicine ball. <strong>Rotate and throw</strong> the ball against the wall, then catch it and rotate back. This trains the exact same movement chain as batting.', cues: ['Drive from your hips, not just your arms', 'Plant your feet — don\'t step', 'Control the catch — don\'t just stop it', 'Use the lightest ball available'], yt: 'https://www.youtube.com/results?search_query=medicine+ball+rotational+throw+wall+how+to' },
+        { name: 'Assisted pull-up / lat pulldown', sets: 2, setLabel: '2 × 6', instructions: 'If you can\'t do a pull-up yet, use the <strong>lat pulldown machine</strong>. Grip the bar wider than shoulder-width, pull down to your upper chest, then slowly return. Squeeze your shoulder blades together as you pull.', cues: ['Lean back slightly as you pull', 'Elbows drive down and back', 'Control the weight going back up — don\'t let it fly', 'Squeeze at the bottom for 1 second'], yt: 'https://www.youtube.com/results?search_query=lat+pulldown+form+beginners' },
+        { name: 'Wrist curls + reverse curls', sets: 2, setLabel: '2 × 12 each', instructions: '<strong>Wrist curl:</strong> Rest forearms on your thighs or a bench, palms up. Curl your wrists up. <strong>Reverse curl:</strong> Palms down, curl upward. Use a very light dumbbell. This protects and strengthens your bat grip.', cues: ['Only your wrist and forearm move', 'Move slowly through full range', 'No need to go heavy — feel the burn', 'Keep forearms resting flat'], yt: 'https://www.youtube.com/results?search_query=wrist+curls+reverse+curls+dumbbell+how+to' },
+        { name: 'Plank hold', sets: 2, setLabel: '2 × 20–30s', instructions: 'Forearms on the floor, elbows under shoulders. Body forms a straight line from head to heels. <strong>Brace your core like you\'re about to take a punch.</strong> 20–30 seconds is perfect for your first session.', cues: ['Don\'t let your hips sag or rise', 'Squeeze your glutes and thighs too', 'Breathe — don\'t hold your breath', 'Stop when form breaks, not the clock'], yt: 'https://www.youtube.com/results?search_query=plank+hold+form+beginners+how+to' },
+      ]},
+      { name: 'Cool-down', color: '#f5a623', exercises: [
+        { name: 'Chest + shoulder stretch', sets: 1, setLabel: '30s', instructions: 'Stand in a doorframe. Place your forearms on each side of the frame at 90 degrees. <strong>Lean your chest gently forward</strong> until you feel the stretch across your chest and front shoulders.', cues: ['Keep forearms on the frame', 'Lean gently — don\'t force it', 'Breathe deeply and relax into it'], yt: 'https://www.youtube.com/results?search_query=doorway+chest+stretch+how+to' },
+        { name: 'Lat + tricep stretch', sets: 1, setLabel: '30s each', instructions: '<strong>Lat:</strong> Reach one arm overhead, hold a pole or doorframe, and lean away. <strong>Tricep:</strong> Reach one arm behind your head, elbow pointing up, and gently push it down with your other hand.', cues: ['Feel it along the side of your back', 'Don\'t shrug your shoulder up', 'Breathe out as you lean into the stretch'], yt: 'https://www.youtube.com/results?search_query=lat+stretch+tricep+stretch+how+to' },
+        { name: 'Wrist + forearm stretch', sets: 1, setLabel: '30s each', instructions: 'Extend one arm forward, palm up. With your other hand, <strong>gently pull your fingers back</strong> toward you. Hold 30 seconds. Then flip palm down and pull fingers toward you for the reverse.', cues: ['Gentle pressure only', 'Keep your elbow straight', 'Do both directions — palm up and palm down'], yt: 'https://www.youtube.com/results?search_query=wrist+forearm+stretch+after+gym' },
+      ]}
+    ]
+  },
+  fd1: {
+    tag: 'Full Plan',
+    title: 'Day 1 · Lower Body Power',
+    restSecs: 120,
+    phases: [
+      { name: 'Warm-up', color: '#22c97a', exercises: [
+        { name: 'Treadmill or bike warm-up', sets: 1, setLabel: '8 min', instructions: 'Spend 8 minutes on the treadmill or bike, building from easy to moderate pace over the first 4 minutes, then holding a comfortable medium effort.', cues: ['Start very easy', 'Build to moderate by minute 4', 'Light sweat is the goal'], yt: 'https://www.youtube.com/results?search_query=dynamic+warm+up+before+leg+day' },
+        { name: 'Bodyweight squat + hip circles', sets: 1, setLabel: '2×10 + 10', instructions: 'Do 2 sets of 10 bodyweight squats focusing on depth and posture. Then stand and do 10 big hip circles each direction.', cues: ['Full depth on squats', 'Circles as big as possible', 'Feel the hip joint loosen up'], yt: 'https://www.youtube.com/results?search_query=hip+circles+squat+warm+up' },
+      ]},
+      { name: 'Main workout', color: '#4a9eff', exercises: [
+        { name: 'Bulgarian split squat', sets: 4, setLabel: '4 × 8 each', instructions: 'Rest your rear foot on a bench behind you. Hold dumbbells or a barbell. <strong>Lower your back knee toward the floor</strong>, keeping your torso upright. This is the most cricket-specific leg exercise — it trains the exact lunge position you use at the crease.', cues: ['Front foot far enough forward — knee over ankle', 'Torso stays vertical', 'Drive through your front heel to stand', 'Control the descent — 2 seconds down'], yt: 'https://www.youtube.com/results?search_query=bulgarian+split+squat+form+how+to' },
+        { name: 'Trap bar deadlift', sets: 4, setLabel: '4 × 6 heavy', instructions: 'Stand in the centre of the trap bar, feet hip-width. Hinge down, grip the handles. <strong>Brace your core hard</strong>, drive your feet through the floor, and stand tall. Lower under control.', cues: ['Chest up before you pull', 'Push the floor away — don\'t think "pull"', 'Lock out hips and glutes at the top', 'Controlled descent, don\'t drop it'], yt: 'https://www.youtube.com/results?search_query=trap+bar+deadlift+form+how+to' },
+        { name: 'Lateral band walks', sets: 3, setLabel: '3 × 15 each', instructions: 'Place a resistance band just above your knees. Stand in a quarter squat. <strong>Step sideways</strong>, maintaining tension in the band, for 15 steps each direction. This targets the glute medius — critical for batting stability.', cues: ['Stay in the squat position throughout', 'Don\'t let knees cave inward', 'Keep tension in the band — don\'t bring feet together', 'Move from your hip, not your ankle'], yt: 'https://www.youtube.com/results?search_query=lateral+band+walks+glutes+how+to' },
+        { name: 'Box jumps', sets: 4, setLabel: '4 × 6 max height', instructions: 'Stand 30cm from the box. Dip, swing your arms, and <strong>explode upward with maximum effort</strong>. Land softly with bent knees. Step down carefully. Every rep should be your best possible effort.', cues: ['Maximum effort on every rep', 'Full hip extension at the top', 'Land like a cat — absorb the impact', 'Rest 30 seconds between reps'], yt: 'https://www.youtube.com/results?search_query=box+jump+max+height+technique' },
+        { name: 'Copenhagen plank', sets: 3, setLabel: '3 × 20s each', instructions: 'Lie on your side. Rest your top foot on a bench. <strong>Lift your hips off the floor</strong>, supporting yourself with your forearm and top foot. Your body forms a straight diagonal line.', cues: ['Hips fully elevated — don\'t sag', 'Top leg stays straight', 'Core braced the entire time', 'Stop when hips drop'], yt: 'https://www.youtube.com/results?search_query=copenhagen+plank+how+to+adductor' },
+      ]},
+      { name: 'Cool-down', color: '#f5a623', exercises: [
+        { name: 'Full lower body stretch', sets: 1, setLabel: '10 min', instructions: 'Spend 10 minutes going through: quad stretch (30s each), hip flexor stretch (30s each), hamstring stretch (30s each), calf stretch (30s each), and pigeon pose or figure-4 stretch for the glutes (45s each).', cues: ['Never stretch to pain — to tension only', 'Breathe slowly throughout each stretch', 'Hold every stretch for the full duration'], yt: 'https://www.youtube.com/results?search_query=full+lower+body+stretch+routine+after+leg+day' },
+      ]}
+    ]
+  },
+  fd2: {
+    tag: 'Full Plan',
+    title: 'Day 2 · Endurance Circuit',
+    restSecs: 60,
+    phases: [
+      { name: 'Warm-up', color: '#22c97a', exercises: [
+        { name: 'Light rowing machine', sets: 1, setLabel: '5 min easy', instructions: 'Gentle rowing to warm up the whole body. Focus on smooth technique — legs, lean, pull. Build gradually to a moderate effort by the end of the 5 minutes.', cues: ['Easy pace — around 18 strokes per minute', 'Focus on smooth rhythm', 'Breathe consistently'], yt: 'https://www.youtube.com/results?search_query=rowing+machine+warm+up+technique' },
+      ]},
+      { name: 'Main workout', color: '#4a9eff', exercises: [
+        { name: 'Rowing machine intervals', sets: 10, setLabel: '10 × 1min on/1min easy', instructions: 'Row hard for 1 minute (rate 24–28 spm, near maximum effort), then row very lightly for 1 minute. Repeat 10 times. This mimics the burst-then-recover pattern of batting.', cues: ['Hard effort should feel like 8/10 intensity', 'Easy phase: breathe and recover fully', 'Maintain good form even when tired', 'Note your distance each hard interval'], yt: 'https://www.youtube.com/results?search_query=rowing+machine+interval+training+workout' },
+        { name: 'Ski erg pulls', sets: 4, setLabel: '4 × 45s on/30s rest', instructions: 'Grab the handles above your head. Pull them down powerfully in a double-arm swing, bending forward as you pull. <strong>Drive from your lats and core</strong>, not just arms.', cues: ['Hinge forward as you pull down', 'Powerful hip drive', 'Arms are the last thing to engage', 'Keep core tight throughout'], yt: 'https://www.youtube.com/results?search_query=ski+erg+technique+how+to' },
+        { name: 'Battle rope waves', sets: 5, setLabel: '5 × 30s on/30s rest', instructions: 'Hold one end of each rope. <strong>Alternate arms up and down</strong> rapidly, creating waves that travel to the anchor. Keep your knees slightly bent and core tight.', cues: ['Stay in a slight squat position', 'Move as fast as you can', 'Waves should reach all the way to the anchor', 'Breathe — don\'t hold your breath'], yt: 'https://www.youtube.com/results?search_query=battle+rope+waves+technique+workout' },
+        { name: 'Sled push', sets: 6, setLabel: '6 × 20m moderate', instructions: 'Load the sled to a moderate weight. Lean forward at roughly 45 degrees and <strong>drive with powerful leg strides</strong>. Short, quick steps are better than long, slow ones.', cues: ['Lean forward — body angle is key', 'Push from your hips, not your arms', 'Short fast steps, not long lunging strides', 'Keep pushing right to the end of the 20m'], yt: 'https://www.youtube.com/results?search_query=sled+push+technique+how+to' },
+        { name: 'Plank hold', sets: 3, setLabel: '3 × 45s', instructions: 'Forearms on the floor, body in a straight line. This time <strong>hold for a full 45 seconds</strong>. Brace everything — core, glutes, quads. Your whole body should feel engaged.', cues: ['Squeeze everything — core, glutes, legs', 'Breathe steadily — don\'t hold it', 'Hips level — not too high, not sagging', 'Stop if your back arches significantly'], yt: 'https://www.youtube.com/results?search_query=plank+hold+45+seconds+form' },
+      ]},
+      { name: 'Cool-down', color: '#f5a623', exercises: [
+        { name: 'Full body stretch + breathing', sets: 1, setLabel: '10 min', instructions: 'Focus on upper back, shoulders, lats, and hip flexors. Take slow, deep breaths throughout. Your heart rate should return to near normal by the end.', cues: ['Deep nasal breaths', 'Hold each stretch 30–45 seconds', 'Focus on areas that feel tight'], yt: 'https://www.youtube.com/results?search_query=cool+down+stretching+after+cardio+workout' },
+      ]}
+    ]
+  },
+  fd3: {
+    tag: 'Full Plan',
+    title: 'Day 3 · Rotational & Upper Body',
+    restSecs: 90,
+    phases: [
+      { name: 'Warm-up', color: '#22c97a', exercises: [
+        { name: 'Rowing + thoracic rotation', sets: 1, setLabel: '5 min + 10 each', instructions: 'Start with 5 minutes on the rower. Then do thoracic rotation (kneeling, hand behind head) for 10 reps each side, and arm circles for 15 each direction.', cues: ['Open up the mid-back fully', 'Slow controlled rotations', 'Feel the shoulder joint warming up'], yt: 'https://www.youtube.com/results?search_query=upper+body+warm+up+rotation+shoulder' },
+      ]},
+      { name: 'Main workout', color: '#4a9eff', exercises: [
+        { name: 'Cable wood chop (high to low)', sets: 4, setLabel: '4 × 12 each', instructions: 'Set cable high. Stand sideways. <strong>Rotate your torso and pull</strong> the cable diagonally from high (above your shoulder) to low (outside your opposite knee). This is the exact movement pattern of a cricket drive.', cues: ['Hips stay square — torso rotates', 'Brace your core throughout', 'Control the cable back — don\'t let it pull you', 'Feel the obliques working'], yt: 'https://www.youtube.com/results?search_query=cable+wood+chop+high+to+low+form' },
+        { name: 'Med ball rotational slam', sets: 4, setLabel: '4 × 8 each', instructions: 'Stand sideways to a wall, 1–1.5m away. Load the rotation, then <strong>explosively throw</strong> the ball into the wall, rotating fully. Catch and control. This develops bat speed directly.', cues: ['Explode — this is a power movement', 'Full hip rotation, not just shoulders', 'Catch and control the rebound', 'Reset properly before each rep'], yt: 'https://www.youtube.com/results?search_query=medicine+ball+rotational+throw+wall+power' },
+        { name: 'Single arm dumbbell row', sets: 4, setLabel: '4 × 10 each', instructions: 'Place one hand and knee on a bench. Hold a dumbbell in the other hand. <strong>Pull the dumbbell to your hip</strong>, driving your elbow back. Think of starting a lawnmower.', cues: ['Pull to hip, not to shoulder', 'Don\'t rotate your torso — keep it square', 'Full stretch at the bottom', 'Squeeze at the top for a second'], yt: 'https://www.youtube.com/results?search_query=single+arm+dumbbell+row+form+how+to' },
+        { name: 'Landmine press (single arm)', sets: 3, setLabel: '3 × 10 each', instructions: 'Fix a barbell in a corner or landmine attachment. Hold the end of the bar at shoulder height. <strong>Press it up and away</strong> at an angle, fully extending your arm. Return under control.', cues: ['Press in an arc — not straight up', 'Keep your core braced', 'Don\'t let your shoulder shrug up', 'Elbow stays in, not flaring out'], yt: 'https://www.youtube.com/results?search_query=landmine+press+single+arm+how+to' },
+        { name: 'Wrist curls + reverse curls', sets: 3, setLabel: '3 × 15 each', instructions: 'Rest forearms on your thighs. <strong>Curl your wrists up (palms up) for 15 reps</strong>, then flip to palms down for 15 reverse curls. Use a light dumbbell — this is detail work for bat control.', cues: ['Full range of motion on every rep', 'Only the wrist moves — not the elbow', 'Slow on the way down', 'Feel the forearm burning — that\'s normal'], yt: 'https://www.youtube.com/results?search_query=wrist+curls+reverse+curls+forearm+workout' },
+      ]},
+      { name: 'Cool-down', color: '#f5a623', exercises: [
+        { name: 'Upper body stretch routine', sets: 1, setLabel: '10 min', instructions: 'Work through: chest doorway stretch, lat stretch with overhead reach, wrist and forearm stretches (both directions), cross-body shoulder stretch, and neck rolls.', cues: ['Hold each for 30 seconds minimum', 'Pay extra attention to wrists — they worked hard', 'Breathe slowly and deeply'], yt: 'https://www.youtube.com/results?search_query=upper+body+stretching+routine+after+workout' },
+      ]}
+    ]
+  },
+  fd4: {
+    tag: 'Full Plan',
+    title: 'Day 4 · Power & Full Body',
+    restSecs: 90,
+    phases: [
+      { name: 'Warm-up', color: '#22c97a', exercises: [
+        { name: 'Full dynamic warm-up', sets: 1, setLabel: '10 min', instructions: '5 minutes light bike, then: leg swings (10 each), arm circles (10 each), bodyweight squat (10), hip circles (10), and jumping jacks for 30 seconds to prime the nervous system.', cues: ['Build intensity through the warm-up', 'Focus on full range of motion', 'You should feel warm and ready to move fast'], yt: 'https://www.youtube.com/results?search_query=dynamic+warm+up+full+body+power+training' },
+      ]},
+      { name: 'Main workout', color: '#4a9eff', exercises: [
+        { name: 'Hex bar jump squat', sets: 4, setLabel: '4 × 5 explosive', instructions: 'Stand in the hex bar with a light load (30–50% of your deadlift). Dip and <strong>explode off the floor as fast as possible</strong>. You\'ll leave the ground. Land softly. This trains pure power output.', cues: ['Light load — speed is the point, not weight', 'Maximum intent on every rep', 'Land with bent knees to absorb impact', 'Rest fully between reps for max power'], yt: 'https://www.youtube.com/results?search_query=hex+bar+trap+bar+jump+squat+how+to' },
+        { name: 'Dumbbell snatch', sets: 4, setLabel: '4 × 6 each', instructions: 'Hold one dumbbell between your feet. In one explosive movement, <strong>pull it from the floor to overhead</strong> in a single fluid motion — driving your hips, then shrugging, then punching up. Use moderate weight.', cues: ['The power comes from your hips, not arms', 'Keep the dumbbell close to your body', 'Lock out fully overhead before lowering', 'This is a skill — go lighter to learn it'], yt: 'https://www.youtube.com/results?search_query=dumbbell+snatch+how+to+form+beginners' },
+        { name: 'Pull-ups', sets: 4, setLabel: '4 × 6–8', instructions: 'Grip the bar just wider than shoulder-width, palms facing away. <strong>Pull until your chin clears the bar</strong>, leading with your elbows. Lower slowly and fully. Use a band for assistance if needed.', cues: ['Full dead hang at the bottom', 'Elbows drive down, not just arms pulling', 'Don\'t kip — control the whole movement', 'Chest to bar is the goal long term'], yt: 'https://www.youtube.com/results?search_query=pull+up+form+how+to+beginners' },
+        { name: 'Farmer carry', sets: 4, setLabel: '4 × 30m heavy', instructions: 'Pick up the heaviest dumbbells or trap bar you can walk with and <strong>walk 30m without putting them down</strong>. Stand tall, shoulders back. This builds grip strength for batting and core stability.', cues: ['Stand tall — don\'t lean to one side', 'Small quick steps', 'Squeeze the handles hard', 'Breathe steadily — don\'t hold your breath'], yt: 'https://www.youtube.com/results?search_query=farmer+carry+how+to+form+benefits' },
+        { name: 'Cable Pallof press', sets: 3, setLabel: '3 × 12 each', instructions: 'Set the cable at chest height. Stand sideways to the machine. Hold the handle with both hands at your chest. <strong>Press it straight out in front of you</strong> and hold 2 seconds, then pull it back. Your body should want to rotate — resist it.', cues: ['This is anti-rotation — resist the cable pulling you', 'Arms go straight out, not diagonal', 'Core braced like you\'re about to take a hit', 'The further you press, the harder it gets'], yt: 'https://www.youtube.com/results?search_query=cable+pallof+press+how+to+anti+rotation' },
+      ]},
+      { name: 'Cool-down', color: '#f5a623', exercises: [
+        { name: 'Full body stretch', sets: 1, setLabel: '12 min', instructions: 'Full body cool-down. Work from bottom to top: calves, hamstrings, quads, hip flexors, glutes, lats, chest, and wrists. This is the most important part of your recovery — don\'t skip it.', cues: ['At least 30 seconds per muscle group', 'Breathe deep and slow', 'Note any areas of tightness for next time'], yt: 'https://www.youtube.com/results?search_query=full+body+cool+down+stretching+routine' },
+      ]}
+    ]
+  }
+};
+
+// State
+let currentSession = null;
+let setState = {};
+let timerInterval = null;
+let timerSecs = 90;
+let timerTotal = 90;
+const progress = JSON.parse(localStorage.getItem('cf_progress') || '{"sessions":{},"totalSets":0}');
+
+function showScreen(id, navEl) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  if (id === 'progress') renderProgress();
+}
+
+function goHome() {
+  saveSessionProgress();
+  showScreen('home', document.getElementById('nav-home'));
+}
+
+function openSession(key) {
+  currentSession = key;
+  const sess = SESSIONS[key];
+  setState = JSON.parse(localStorage.getItem('cf_sets_' + key) || '{}');
+
+  document.getElementById('s-tag').textContent = sess.tag;
+  document.getElementById('s-title').textContent = sess.title;
+
+  const body = document.getElementById('session-body');
+  body.innerHTML = '';
+
+  sess.phases.forEach((phase, pi) => {
+    const pb = document.createElement('div');
+    pb.className = 'phase-block';
+    pb.innerHTML = `<div class="phase-label"><div class="phase-dot" style="background:${phase.color}"></div>${phase.name}</div>`;
+
+    phase.exercises.forEach((ex, ei) => {
+      const id = `${pi}_${ei}`;
+      const card = document.createElement('div');
+      card.className = 'ex-card';
+      card.id = `card_${id}`;
+
+      const allDone = isExDone(id, ex.sets);
+      if (allDone) card.style.borderColor = '#22c97a44';
+
+      const setsHTML = buildSetsHTML(id, ex.sets, ex.setLabel);
+
+      card.innerHTML = `
+        <div class="ex-card-top" onclick="toggleCard('${id}')">
+          <div class="ex-check ${allDone ? 'done' : ''}" id="check_${id}"></div>
+          <div class="ex-main">
+            <div class="ex-name">${ex.name}</div>
+            <div class="ex-desc">${ex.setLabel}</div>
+          </div>
+          <div class="ex-expand-icon" id="icon_${id}">⌄</div>
+        </div>
+        <div class="ex-body" id="body_${id}">
+          <div class="ex-instructions">${ex.instructions}</div>
+          <div class="ex-cues">${ex.cues.map(c => `<div class="ex-cue"><div class="ex-cue-dot"></div>${c}</div>`).join('')}</div>
+          <a class="yt-btn" href="${ex.yt}" target="_blank"><span class="yt-icon">▶</span> Watch on YouTube</a>
+          <div class="sets-section">
+            <div class="sets-label">Sets completed</div>
+            <div class="sets-row" id="sets_${id}">${setsHTML}</div>
+          </div>
+        </div>
+      `;
+      pb.appendChild(card);
+    });
+
+    body.appendChild(pb);
+  });
+
+  updateProgressPill();
+  showScreen('session', null);
+  document.getElementById('session').scrollTop = 0;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+}
+
+function buildSetsHTML(id, sets, label) {
+  if (sets === 1) {
+    const done = setState[`${id}_0`];
+    return `<div class="set-dot ${done ? 'done' : ''}" onclick="toggleSet('${id}', 0, 1, 90)"><span>${label.length > 6 ? '✓' : label}</span></div>`;
+  }
+  return Array.from({length: sets}, (_, i) => {
+    const done = setState[`${id}_${i}`];
+    return `<div class="set-dot ${done ? 'done' : ''}" onclick="toggleSet('${id}', ${i}, ${sets}, ${SESSIONS[currentSession].restSecs})"><span>${i+1}</span></div>`;
+  }).join('');
+}
+
+function toggleSet(exId, setIdx, totalSets, restSecs) {
+  const key = `${exId}_${setIdx}`;
+  const wasDone = setState[key];
+  setState[key] = !wasDone;
+
+  const dot = document.querySelector(`#sets_${exId} .set-dot:nth-child(${setIdx + 1})`);
+  if (dot) dot.classList.toggle('done', !wasDone);
+
+  const allDone = isExDone(exId, totalSets);
+  const check = document.getElementById('check_' + exId);
+  const card = document.getElementById('card_' + exId);
+  if (check) check.className = 'ex-check' + (allDone ? ' done' : '');
+  if (card) card.style.borderColor = allDone ? '#22c97a44' : '';
+
+  updateProgressPill();
+  saveSessionProgress();
+
+  if (!wasDone && restSecs > 0) {
+    startTimer(restSecs);
+  }
+}
+
+function isExDone(id, sets) {
+  for (let i = 0; i < sets; i++) {
+    if (!setState[`${id}_${i}`]) return false;
+  }
+  return true;
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card_' + id);
+  card.classList.toggle('expanded');
+}
+
+function updateProgressPill() {
+  const sess = SESSIONS[currentSession];
+  let done = 0, total = 0;
+  sess.phases.forEach((phase, pi) => {
+    phase.exercises.forEach((ex, ei) => {
+      const id = `${pi}_${ei}`;
+      total += ex.sets;
+      for (let i = 0; i < ex.sets; i++) {
+        if (setState[`${id}_${i}`]) done++;
+      }
+    });
+  });
+  document.getElementById('s-progress').textContent = `${done}/${total} sets`;
+}
+
+function saveSessionProgress() {
+  if (!currentSession) return;
+  localStorage.setItem('cf_sets_' + currentSession, JSON.stringify(setState));
+
+  const sess = SESSIONS[currentSession];
+  let allSets = 0, doneSets = 0;
+  sess.phases.forEach((phase, pi) => {
+    phase.exercises.forEach((ex, ei) => {
+      const id = `${pi}_${ei}`;
+      allSets += ex.sets;
+      for (let i = 0; i < ex.sets; i++) {
+        if (setState[`${id}_${i}`]) doneSets++;
+      }
+    });
+  });
+
+  if (!progress.sessions) progress.sessions = {};
+  progress.sessions[currentSession] = { done: doneSets, total: allSets, date: new Date().toDateString() };
+  progress.totalSets = Object.values(progress.sessions).reduce((a, s) => a + (s.done || 0), 0);
+  localStorage.setItem('cf_progress', JSON.stringify(progress));
+}
+
+function startTimer(secs) {
+  if (timerInterval) clearInterval(timerInterval);
+  timerSecs = secs;
+  timerTotal = secs;
+  const overlay = document.getElementById('timer-overlay');
+  const count = document.getElementById('timer-count');
+  const arc = document.getElementById('timer-arc');
+  const circumference = 515;
+  overlay.classList.add('show');
+  count.textContent = timerSecs;
+  arc.style.strokeDashoffset = 0;
+
+  timerInterval = setInterval(() => {
+    timerSecs--;
+    count.textContent = timerSecs;
+    const progress = 1 - (timerSecs / timerTotal);
+    arc.style.strokeDashoffset = circumference * progress;
+    if (timerSecs <= 0) skipTimer();
+  }, 1000);
+}
+
+function skipTimer() {
+  clearInterval(timerInterval);
+  document.getElementById('timer-overlay').classList.remove('show');
+}
+
+function renderProgress() {
+  const sessions = progress.sessions || {};
+  const sessionKeys = Object.keys(sessions);
+  const doneSessions = sessionKeys.filter(k => sessions[k].done === sessions[k].total && sessions[k].total > 0).length;
+  const totalSets = sessionKeys.reduce((a, k) => a + (sessions[k].done || 0), 0);
+  const totalEx = sessionKeys.reduce((a, k) => {
+    const sess = SESSIONS[k];
+    if (!sess) return a;
+    return a + sess.phases.reduce((b, p) => b + p.exercises.filter((ex, ei) => {
+      const id = `${sess.phases.indexOf(p)}_${ei}`;
+      return [0,1,2,3].some(i => JSON.parse(localStorage.getItem('cf_sets_' + k) || '{}')[`${id}_${i}`]);
+    }).length, 0);
+  }, 0);
+
+  document.getElementById('stat-sessions').textContent = doneSessions;
+  document.getElementById('stat-sets').textContent = totalSets;
+  document.getElementById('stat-streak').textContent = doneSessions > 0 ? '🔥' + doneSessions : '0';
+  document.getElementById('stat-exercises').textContent = totalSets;
+
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const dayMap = { w1d1: 0, fd1: 0, fd2: 1, w1d2: 3, fd3: 3, fd4: 5 };
+  const completedDays = new Set(sessionKeys.filter(k => sessions[k].done > 0).map(k => dayMap[k]));
+
+  const wd = document.getElementById('week-days');
+  wd.innerHTML = days.map((d, i) => `
+    <div class="week-day ${completedDays.has(i) ? 'done' : ''}">
+      <div class="week-day-name">${d}</div>
+      <div class="week-day-check">${completedDays.has(i) ? '✓' : ''}</div>
+    </div>
+  `).join('');
+}
+
+function resetProgress() {
+  if (!confirm('Reset all progress?')) return;
+  Object.keys(SESSIONS).forEach(k => localStorage.removeItem('cf_sets_' + k));
+  localStorage.removeItem('cf_progress');
+  location.reload();
+}
+</script>
+</body>
+</html>
